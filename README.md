@@ -53,6 +53,7 @@ flowchart LR
   subgraph Chains
     BESU[Hyperledger Besu / Kaleido]
     SEP[Ethereum Sepolia]
+    RH[Robinhood Chain Testnet]
     SOL[Solana Token-2022]
   end
   I --> API
@@ -87,7 +88,7 @@ flowchart LR
 
 | Capability | What it demonstrates |
 |---|---|
-| AI compliance analyst | LLM agent triages AML alerts and drafts case narratives; human approves; evaluated for accuracy and guarded against prompt injection |
+| AI compliance analyst | Background agent triages AML alerts from Kafka; interactive copilot answers analyst questions; both use a read-only MCP server; human approves every action; evaluated and guarded against prompt injection |
 | Rust signing service | Institutional key management across MPC providers and AWS KMS, with cold/warm/hot wallet tiers |
 | Event-driven compliance | Kafka backbone feeds sanctions screening, fraud rules and case management |
 | On-chain compliance | Transfers to non-verified wallets are rejected by the contract itself |
@@ -95,7 +96,7 @@ flowchart LR
 | Atomic DvP settlement | Shares and stablecoin swap in a single transaction (T+0) |
 | Corporate actions | Automated interest distribution to all eligible holders |
 | AML monitoring | Velocity and structuring rules raise alerts; compliance officer can freeze |
-| Enterprise and public chains | Same contracts on Hyperledger Besu (QBFT) and public EVM |
+| Enterprise and public chains | Same contracts on Hyperledger Besu (QBFT), Robinhood Chain (public L2 for real-world assets) and Ethereum |
 | Upgrade governance | UUPS proxies authorized by timelock and multisig |
 
 ## Demo walkthrough
@@ -143,7 +144,7 @@ Control mapping shows design alignment only. It is not a certification or regula
 | Backend | Go, Rust, gRPC, Kafka |
 | AI | LLM agent, evaluation harness (Python), guardrails |
 | Custody | Fireblocks, Turnkey, DFNS |
-| Chains | Hyperledger Besu, Kaleido, Ethereum Sepolia, Solana |
+| Chains | Hyperledger Besu, Kaleido, Ethereum Sepolia, Robinhood Chain Testnet, Solana |
 | Infrastructure | Docker, Kubernetes, Terraform, AWS, GitHub Actions |
 | Observability | OpenTelemetry, Prometheus, Grafana, SLOs, load and chaos testing |
 
