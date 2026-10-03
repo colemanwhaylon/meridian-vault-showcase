@@ -30,43 +30,42 @@ A fund manager tokenizes a **$50M private credit fund**. KYC-verified investors 
 
 ```mermaid
 flowchart LR
-  subgraph Users
+  subgraph Frontend["Next.js + Wagmi + Viem"]
     I[Investor Portal]
     A[Issuer / Compliance Admin]
   end
-  subgraph Frontend["Next.js + Wagmi + Viem"]
-    I
-    A
-  end
-  subgraph Services
-    API[Node.js API]
+  subgraph Services["Go services (gRPC)"]
+    API[API Gateway]
     POL[Policy Engine]
-    MON[AML Monitoring]
-    IDX[Go Indexer]
+    CMP[Compliance + Case Mgmt]
+    IDX[Indexer]
   end
-  subgraph Custody["MPC Custody (ICustodyProvider)"]
+  subgraph Custody["Rust Signer"]
+    SG[Signing Service]
     FB[Fireblocks]
     TK[Turnkey]
-    DF[DFNS]
+    KMS[AWS KMS]
   end
-  subgraph Compliance
-    KYC[KYC Provider]
-    SAN[Sanctions Screening]
+  subgraph AI["AI Compliance Analyst"]
+    AG[LLM Agent + Evals + Guardrails]
   end
+  K[(Kafka)]
   subgraph Chains
     BESU[Hyperledger Besu / Kaleido]
-    SEP[Public EVM - Sepolia]
+    SEP[Ethereum Sepolia]
+    SOL[Solana Token-2022]
   end
   I --> API
   A --> API
-  API --> POL --> Custody
-  API --> KYC
-  API --> SAN
-  Custody --> BESU
-  Custody --> SEP
-  BESU --> IDX
-  SEP --> IDX
-  IDX --> MON --> A
+  API --> POL --> SG
+  SG --> FB
+  SG --> TK
+  SG --> KMS
+  SG --> Chains
+  Chains --> IDX --> K
+  K --> CMP
+  K --> AG
+  AG --> CMP --> A
 ```
 
 ## ERC standards implemented
@@ -78,6 +77,8 @@ flowchart LR
 | **ERC-20** + **EIP-2612** | Settlement stablecoin for subscriptions, redemptions and distributions (atomic delivery versus payment) |
 | **ERC-721** | Asset certificate representing the underlying loan pool |
 | **ERC-1155** | Fractional units and distribution vouchers |
+| **ERC-4626** | Fund share vault with NAV-per-share accounting |
+| **ERC-7540** | Asynchronous redemption queue (request, settle, claim) |
 | **ERC-1967 / ERC-1822** (UUPS) | Upgradeable contracts behind timelock and multisig governance |
 | **ERC-734 / ERC-735** (ONCHAINID) | Identity keys and KYC claims checked on every transfer |
 | **ERC-165** | Interface detection |
@@ -86,6 +87,9 @@ flowchart LR
 
 | Capability | What it demonstrates |
 |---|---|
+| AI compliance analyst | LLM agent triages AML alerts and drafts case narratives; human approves; evaluated for accuracy and guarded against prompt injection |
+| Rust signing service | Institutional key management across MPC providers and AWS KMS, with cold/warm/hot wallet tiers |
+| Event-driven compliance | Kafka backbone feeds sanctions screening, fraud rules and case management |
 | On-chain compliance | Transfers to non-verified wallets are rejected by the contract itself |
 | MPC custody | Transactions above policy thresholds require M-of-N approval before signing |
 | Atomic DvP settlement | Shares and stablecoin swap in a single transaction (T+0) |
@@ -109,6 +113,15 @@ flowchart LR
 
 Demo video: *coming soon*
 
+## Engineering approach
+
+| Principle | Application |
+|---|---|
+| Two deep areas | Custody and signing security; compliance and AI pipeline |
+| Measured | Published latency, throughput and cost results from load tests |
+| Reasoned | RFCs and architecture decision records with rejected alternatives |
+| Failure-ready | Threat models, incident runbooks, chaos tests |
+
 ## Security and governance
 
 | Practice | Detail |
@@ -127,10 +140,12 @@ Control mapping shows design alignment only. It is not a certification or regula
 |---|---|
 | Smart contracts | Solidity, Foundry, OpenZeppelin, T-REX |
 | Frontend | Next.js, React, TypeScript, Wagmi, Viem |
-| Backend | Node.js, Go |
+| Backend | Go, Rust, gRPC, Kafka |
+| AI | LLM agent, evaluation harness (Python), guardrails |
 | Custody | Fireblocks, Turnkey, DFNS |
-| Chains | Hyperledger Besu, Kaleido, Ethereum Sepolia |
-| Infrastructure | Docker, GitHub Actions |
+| Chains | Hyperledger Besu, Kaleido, Ethereum Sepolia, Solana |
+| Infrastructure | Docker, Kubernetes, Terraform, AWS, GitHub Actions |
+| Observability | OpenTelemetry, Prometheus, Grafana, SLOs, load and chaos testing |
 
 ## Related work
 
