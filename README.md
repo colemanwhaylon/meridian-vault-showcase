@@ -13,6 +13,10 @@ Compliance, custody and settlement enforced by smart contracts
 ![ERC-3643](https://img.shields.io/badge/ERC--3643-T--REX-0B2545)
 ![Foundry](https://img.shields.io/badge/Foundry-tested-orange)
 
+### [▶ Live demo: meridian-vault-slice1.vercel.app](https://meridian-vault-slice1.vercel.app)
+
+Live reads from the deployed fund on Robinhood Chain, Base Sepolia and Ethereum Sepolia
+
 </div>
 
 > Built in public, one part at a time. Source code is private; this repository is the public overview. Qualified hiring managers and clients can [request a walkthrough](#request-access).
