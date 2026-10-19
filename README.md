@@ -100,7 +100,7 @@ flowchart TB
     A[Issuer / Compliance Admin]
   end
   subgraph Services["Go services, gRPC (Parts 2, 3, 6)"]
-    API[Portal API (Part 6)]
+    API["Portal API, Part 6"]
     RM[(Read model)]
     POL[Policy Engine]
     CMP[Compliance + Case Mgmt]
@@ -109,7 +109,7 @@ flowchart TB
   subgraph Custody["Rust Signer (Part 2, live)"]
     SG[Signing Service]
     KMS[AWS KMS]
-    HSM[HSM, PKCS#11]
+    HSM["HSM via PKCS 11"]
     TK[Turnkey]
     DF[DFNS]
   end
@@ -137,7 +137,7 @@ flowchart TB
   K --> AG
   K --> RM
   RM --> API
-  AG -. recommends .-> CMP
+  AG -->|recommends| CMP
   CMP --> A
 ```
 
