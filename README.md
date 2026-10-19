@@ -6,7 +6,7 @@
 
 Compliance, custody and settlement enforced by smart contracts
 
-![Status](https://img.shields.io/badge/status-Part_1_of_6_complete-blue)
+![Status](https://img.shields.io/badge/status-Parts_1_to_5_of_6_complete-blue)
 ![Live](https://img.shields.io/badge/live-Sepolia_%7C_Base_%7C_Robinhood_Chain-2ea44f)
 ![Invariants](https://img.shields.io/badge/invariants-10k_runs_passing-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-98.76%25-brightgreen)
@@ -35,12 +35,12 @@ A fund manager tokenizes a **$50M private credit fund**. KYC-verified investors 
 
 | Part | Scope | Status |
 |---|---|---|
-| **1** | **Contracts: ERC-3643 fund shares, NAV oracle, ERC-4626/7540 vault, compliance modules, multi-chain deploys** | **Complete** |
-| 2 | Custody: Rust signing service, MPC / HSM / cloud KMS, wallet tiers | Planned |
-| 3 | Compliance pipeline: Go services, Kafka, gRPC, case management | Planned |
-| 4 | AI compliance analyst with human approval, evals and guardrails | Planned |
-| 5 | Kubernetes, observability, load and chaos testing | Planned |
-| 6 | Investor and admin portals, Solana Token-2022, demo video | Planned |
+| 1 | Contracts: ERC-3643 fund shares, NAV oracle, ERC-4626/7540 vault, compliance modules, multi-chain deploys | Complete |
+| 2 | Custody: Rust signing service, MPC / HSM / cloud KMS, wallet tiers | Complete: AWS KMS, Turnkey and DFNS live on Base Sepolia; 500 concurrent signings from one wallet, 0 nonce gaps |
+| 3 | Compliance pipeline: Go services, Kafka, gRPC, case management | Complete: every transfer screened in real time; freeze only through 2 named approvals |
+| 4 | AI compliance analyst with human approval, evals and guardrails | Complete: held-out test set recall 1.00, precision 0.966; prompt-injection set 30 of 30 with a hard rule; the AI cannot act |
+| 5 | Kubernetes, observability, load and chaos testing | Complete: every latency and availability target met on a clean AWS machine; 11 chaos tests pass, 7 real bugs found and fixed |
+| **6** | **Investor and admin portals, Solana Token-2022, demo video** | **In progress** |
 
 ## Part 1 results
 
@@ -165,9 +165,9 @@ Scale targets are stated per component (for example peak write and read rates, p
 | Asynchronous redemptions | Request, fulfil at the next NAV, claim; shares escrowed by freezing | Live |
 | Private, permissioned and public chains | Same contracts on Besu, an allowlisted Avalanche L1, Robinhood Chain, Base and Ethereum | Live |
 | Chain-level permissioning | Avalanche L1 transaction and deployer allowlists | Live (local) |
-| Rust signing service and MPC custody | Policy-based signing, M-of-N approval, wallet tiers | Planned (Part 2) |
-| Event-driven compliance and AML monitoring | Kafka-fed screening, rules, case management, freeze | Planned (Part 3) |
-| AI compliance analyst | Alert triage and analyst copilot with human approval of every action | Planned (Part 4) |
+| Rust signing service and MPC custody | Policy-based signing, M-of-N approval, wallet tiers | Live (testnets) |
+| Event-driven compliance and AML monitoring | Kafka-fed screening, rules, case management, freeze | Live (testnets) |
+| AI compliance analyst | Alert triage and analyst copilot with human approval of every action | Live (synthetic data) |
 | Atomic DvP settlement and corporate actions | Single-transaction share and stablecoin swap; automated distributions | Planned |
 | Upgrade governance | Timelock and multisig authorization | Planned |
 
@@ -199,11 +199,11 @@ Control mapping shows design alignment only. It is not a certification or regula
 | Smart contracts | Solidity, Foundry, OpenZeppelin, T-REX, ONCHAINID | Live |
 | Chains | Hyperledger Besu, Avalanche L1 (Subnet-EVM), Robinhood Chain, Base, Ethereum Sepolia | Live |
 | CI and security | GitHub Actions, Slither, Aderyn, coverage and gas gates | Live |
-| Backend | Go, Rust, gRPC, Kafka | Planned |
-| AI | LLM agent, evaluation harness (Python), guardrails | Planned |
-| Custody | Fireblocks, Turnkey, DFNS, AWS KMS | Planned |
-| Frontend | Next.js, React, TypeScript, Wagmi, Viem | Planned |
-| Infrastructure and observability | Docker (live), Kubernetes, Terraform, AWS, OpenTelemetry, Prometheus, Grafana | Partial |
+| Backend | Go, Rust, gRPC, Kafka, PostgreSQL | Live |
+| AI | LLM agents, read-only MCP server, evaluation harness (Python), guardrails | Live |
+| Custody | AWS KMS, Turnkey, DFNS, PKCS#11 HSM (Fireblocks deferred) | Live (testnets) |
+| Frontend | Next.js, React, TypeScript, Wagmi, Viem | Partial: public demo site live; portals in Part 6 |
+| Infrastructure and observability | Docker, Kubernetes (k3s), Terraform, AWS, OpenTelemetry, Prometheus, Grafana, Tempo | Live |
 
 ## Related work
 
