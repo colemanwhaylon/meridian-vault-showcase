@@ -149,7 +149,7 @@ The architecture is specified in a system design RFC with capacity targets, ten 
 
 | Concern | Design | Status |
 |---|---|---|
-| Transaction ordering under load | Per-wallet single-writer nonce manager and a pool of hot wallets, with replacement-by-fee for stuck transactions | Built: 0 nonce gaps in 500 concurrent signings. Stuck-transaction replacement: planned ([#1](https://github.com/colemanwhaylon/meridian-vault-showcase/issues/1)) |
+| Transaction ordering under load | Per-wallet single-writer nonce manager and a pool of hot wallets, with replacement-by-fee for stuck transactions | Built: 0 nonce gaps in 500 concurrent signings; stuck-transaction replacement tested (chaos test C9) |
 | Retries and duplicates | Idempotency keys on every write API; transactional outbox for every emitted event | Built: outbox in Part 3; idempotency keys on the portal API in Part 6 |
 | Chain reorganisations | Finality-aware indexing with per-chain confirmation depth; idempotent, replay-safe consumers | Built and tested: reorg retracts and replays with 0 duplicates |
 | Read scale | Read model fed by the indexer; portals never read the chain directly | In progress (Part 6) |
