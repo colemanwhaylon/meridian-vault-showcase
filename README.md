@@ -132,7 +132,7 @@ flowchart TB
   IDP --> A
   I --> API
   A --> API
-  API -.->|"signing from the portal: planned"| POL
+  API -. signing from the portal, planned .-> POL
   POL --> SG
   SG --> KMS
   SG --> HSM
@@ -208,7 +208,7 @@ sequenceDiagram
   O2->>Cmp: approve (never the requester)
   Cmp->>Pol: freeze request with approvals
   Pol-->>Sg: signed policy decision
-  Note over O2,Sg: Signing step runs from a test script today; from the admin portal: planned
+  Note over O2,Sg: Signing step runs from a test script today. From the admin portal, planned
   Sg->>Chain: freeze transaction
   Chain->>Idx: Freeze event
   Idx->>K: publish
