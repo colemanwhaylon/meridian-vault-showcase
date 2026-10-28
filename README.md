@@ -171,6 +171,50 @@ flowchart TB
 
 ### How data moves
 
+One suspicious transfer, end to end: screening, AI triage, two-person approval and freeze.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Inv as Investor
+  participant Chain as Chain (ERC-3643)
+  participant Idx as Indexer
+  participant K as Kafka
+  participant Cmp as Compliance
+  participant AI as AI Analyst
+  actor O1 as Officer 1
+  actor O2 as Officer 2
+  participant Pol as Policy Engine
+  participant Sg as Signer
+  participant RM as Read model
+
+  Inv->>Chain: transfer shares
+  Chain-->>Chain: on-chain rules check eligibility, country, lockup
+  Chain->>Idx: Transfer event
+  Idx-->>Idx: wait for finality
+  Idx->>K: publish via outbox (keyed by fund)
+  par
+    K->>RM: update holdings
+  and
+    K->>Cmp: screen transfer
+  end
+  Cmp-->>Cmp: rule hit opens a case
+  Cmp->>K: case opened
+  K->>AI: triage request
+  AI->>Cmp: read case and evidence (read-only)
+  AI->>Cmp: recommendation citing evidence
+  Cmp-->>Cmp: reject if citations are not on the case
+  O1->>Cmp: review and request freeze
+  O2->>Cmp: approve (never the requester)
+  Cmp->>Pol: freeze request with approvals
+  Pol-->>Sg: signed policy decision
+  Note over O2,Sg: Signing step runs from a test script today; from the admin portal: planned
+  Sg->>Chain: freeze transaction
+  Chain->>Idx: Freeze event
+  Idx->>K: publish
+  K->>RM: investor shown as frozen
+```
+
 | Flow | Path | Status |
 |---|---|---|
 | Read path | Chain event, Indexer (waits for finality), outbox, Kafka (by fund), Read model, Portal API, portal | Built and load tested |
