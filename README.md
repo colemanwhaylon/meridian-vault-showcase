@@ -188,7 +188,7 @@ The architecture is specified in a system design RFC with capacity targets, ten 
 | Transaction ordering under load | Per-wallet single-writer nonce manager and a pool of hot wallets, with replacement-by-fee for stuck transactions | Built: 0 nonce gaps in 500 concurrent signings; stuck-transaction replacement tested (chaos test C9) |
 | Retries and duplicates | Idempotency keys on every write API; transactional outbox for every emitted event | Built: outbox in Part 3; idempotency keys on the portal API in Part 6 |
 | Chain reorganisations | Finality-aware indexing with per-chain confirmation depth; idempotent, replay-safe consumers | Built and tested: reorg retracts and replays with 0 duplicates |
-| Read scale | Read model fed by the indexer; portals never read the chain directly | In progress (Part 6) |
+| Read scale | Read model fed by the indexer; portals never read the chain directly | Built and load tested on AWS (Part 6) |
 | Ordering and scale of events | Kafka partitioned by fund; dead-letter topics; lag alerts | Built: lag alert fired during a frozen-consumer test |
 | Overload | Bounded queues and backpressure in front of policy and signer | Built: overload answered with 429 and Retry-After, nothing dropped |
 | Safety | Policy decision required before any signature; fail closed; humans approve AI-recommended actions | Built and tested: fails closed when the policy engine is down; the AI cannot act |
