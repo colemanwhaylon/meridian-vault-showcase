@@ -90,17 +90,20 @@ Testnets and synthetic data only. The AI results come from Gemini 3.5 Flash Lite
 
 ## Architecture
 
-Parts 1 to 5 are built and tested; the portals and the Solana share class are Part 6, in progress. Use the diagram's full-screen and zoom controls to explore it.
+Parts 1 to 5 are built and tested. Part 6 portals and the Solana share class are built; signing from the admin portal is planned. Use the diagram's full-screen and zoom controls to explore it.
+
+**How to read the lines:** solid arrow = built and tested; dashed arrow = planned, not built.
 
 ```mermaid
 %%{init: {"theme": "default", "themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 40, "rankSpacing": 70}}}%%
 flowchart TB
-  subgraph Frontend["Next.js + Wagmi + Viem (Part 6, in progress)"]
+  IDP["OIDC identity provider (Part 6, built)"]
+  subgraph Frontend["Next.js + Wagmi + Viem (Part 6: portals built, scope review open)"]
     I[Investor Portal]
     A[Issuer / Compliance Admin]
   end
   subgraph Services["Go services, gRPC (Parts 2, 3, 6)"]
-    API["Portal API, Part 6"]
+    API["Portal API (Part 6, built)"]
     RM[(Read model)]
     POL[Policy Engine]
     CMP[Compliance + Case Mgmt]
@@ -123,10 +126,14 @@ flowchart TB
     RH[Robinhood Chain]
     BASE[Base]
     SEP[Ethereum Sepolia]
+    SOL["Solana devnet, Token-2022 (Part 6, built)"]
   end
+  IDP --> I
+  IDP --> A
   I --> API
   A --> API
-  API --> POL --> SG
+  API -.->|"signing from the portal: planned"| POL
+  POL --> SG
   SG --> KMS
   SG --> HSM
   SG --> TK
@@ -142,6 +149,35 @@ flowchart TB
 ```
 
 <sub>Note: an abbreviated view. It omits supporting components (nonce manager, outbox, dead-letter topics, observability stack) that are specified in the system design RFC. Fireblocks was deferred in Part 2; Turnkey and DFNS cover MPC. Detailed component and sequence diagrams are available in a walkthrough.</sub>
+
+### What each piece does
+
+| Area | Piece | Purpose |
+|---|---|---|
+| Identity | OIDC identity provider | Logs in investors and officers; a bank would plug in its own IdP here |
+| Portals | Investor Portal | Investors see holdings, NAV and their requests |
+| | Issuer / Compliance Admin | Officers review cases and approve high-risk actions; a named human approves every action |
+| Go services | Portal API | Single entry point for the portals; idempotency keys make every retry safe |
+| | Read model | Query-ready copy of final chain events joined with NAV and KYC status; fast, and rebuildable from the chain |
+| | Policy Engine | Decides allow, deny or require approval for every signing request; if it is down, nothing is signed |
+| | Compliance + Case Mgmt | Screens every transfer and wallet, opens and works cases, requests freezes |
+| | Indexer | Reads chain events, waits for finality, publishes to Kafka through an outbox |
+| Custody | Signing Service (Rust) | Signs only with a policy decision; manages nonces and stuck transactions |
+| | AWS KMS, HSM, Turnkey, DFNS | Key custody by tier: KMS hot, MPC warm (Turnkey, DFNS), HSM cold; no key in application memory |
+| AI | LLM Agents + Evals + Guardrails | Triages alerts and drafts recommendations; read-only, no write path, recommends only |
+| Backbone | Kafka | Event backbone, partitioned by fund so each fund's events stay in order |
+| Settlement | Besu, Avalanche L1, Robinhood Chain, Base, Sepolia | Same ERC-3643 contracts on private, permissioned and public chains, selected by configuration only |
+| | Solana devnet (Token-2022) | Same fund rules on a non-EVM chain; freeze key held in Turnkey |
+
+### How data moves
+
+| Flow | Path | Status |
+|---|---|---|
+| Read path | Chain event, Indexer (waits for finality), outbox, Kafka (by fund), Read model, Portal API, portal | Built and load tested |
+| Transfer screening | Investor transfer, on-chain ERC-3643 rules allow or reject, Indexer, Kafka, Compliance screens, case opened if suspicious | Built |
+| AI triage | Case event, AI reads through read-only tools, recommendation citing evidence on the case, Compliance validates it, officer decides in the admin portal | Built |
+| Freeze | Officer requests, a second officer approves (never the requester), Policy Engine, Signer, chain | Built and tested end to end; triggering the signing step from the admin portal is planned |
+| Subscription and redemption | Request on-chain at NAV, operator fulfilment through Policy Engine and M-of-N approval, Signer, chain, Indexer, Read model | Built in contracts and signer; triggering from the portal is planned |
 
 ### Design notes
 
